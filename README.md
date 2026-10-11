@@ -55,7 +55,45 @@ Todos os 3 projetos atendem ao mínimo exigido pelo desafio (≥5 problemas, ≥
 
 ## B) Construção da Skill
 
-*(a ser preenchido na Fase 2 — design e criação da skill `refactor-arch`)*
+### Estrutura
+
+A skill `refactor-arch` vive em `.claude/skills/refactor-arch/` e segue a estrutura:
+
+```
+refactor-arch/
+├── SKILL.md                              # orquestra as 3 fases
+└── references/
+    ├── project-analysis.md               # heurísticas da Fase 1
+    ├── anti-patterns-catalog.md          # catálogo da Fase 2 (14 anti-patterns)
+    ├── report-template.md                # formato do relatório da Fase 2
+    ├── mvc-guidelines.md                 # alvo arquitetural da Fase 3
+    └── refactoring-playbook.md           # transformações antes/depois da Fase 3
+```
+
+O `SKILL.md` abre com 5 "regras invioláveis" (nenhuma escrita antes da confirmação humana; todo finding com arquivo:linha real; nenhuma suposição de stack; comportamento preservado, exceto correção de segurança; nenhum número alucinado) e uma tabela que diz **qual arquivo de referência ler em qual fase** — a skill carrega conhecimento sob demanda em vez de tudo de uma vez.
+
+### Decisões de design
+
+- **Catálogo com IDs estáveis (`AP-01`…`AP-14`) e severidade padrão por entrada**, para que o relatório da Fase 2 e o playbook da Fase 3 se refiram ao mesmo vocabulário (`AP-05 → Playbook RP-05`). A severidade padrão pode subir um nível quando o impacto do caso concreto justificar.
+- **Playbook 1:1 com o catálogo** (14 transformações, uma por anti-pattern), com exemplos de código alternando Python e JavaScript propositalmente — o antes/depois mostra a movimentação estrutural, não a sintaxe de uma linguagem só, reforçando que a skill não é específica de uma stack.
+- **Estratégia adaptativa em `mvc-guidelines.md`:** a Fase 3 decide a profundidade da refatoração pela classificação da Fase 1 — projeto monolítico recebe o scaffold MVC completo; projeto já em camadas (como o `task-manager-api`) recebe melhoria direcionada, sem reescrever o que já está adequado. Essa distinção é citada explicitamente no desafio e foi um ponto de atenção desde o desenho da skill.
+- **Pausa da Fase 2 tratada como obrigatória e sem ambiguidade:** o `SKILL.md` instrui que qualquer resposta que não seja uma confirmação clara é tratada como "n", evitando que a Fase 3 rode por engano.
+
+### Anti-patterns incluídos e por quê
+
+O catálogo tem 14 entradas (acima do mínimo de 8), com distribuição CRITICAL 5 / HIGH 4 / MEDIUM 3 / LOW 2, escolhidas para cobrir exatamente a análise manual (seção A): SQL Injection, segredos hardcoded, endpoint de execução arbitrária, exposição de dado sensível e criptografia quebrada (os 5 CRITICAL, todos presentes em pelo menos um dos 3 projetos); God Class, lógica de negócio na camada errada, autenticação ausente/fictícia e estado global mutável (os 4 HIGH); N+1, duplicação/código morto e **APIs deprecated** (os 3 MEDIUM — a detecção de deprecated é um requisito explícito do desafio); magic numbers e tratamento de erro genérico (os 2 LOW). Nenhuma entrada foi incluída "por completude" — todas mapeiam para um achado real de algum dos 3 projetos-alvo.
+
+### Como garantimos que a skill é agnóstica de tecnologia
+
+- Nenhum arquivo de referência menciona Flask/Express como pré-requisito — os sinais de detecção são descritos em termos de padrão de código (`execute("..." + var)`, `db.get(...)` dentro de loop), não de API específica de um framework.
+- O playbook mistura exemplos Python e JavaScript no mesmo arquivo, forçando a skill (e quem a lê) a entender a transformação como estrutural, "traduzível" para a linguagem do projeto.
+- A prova definitiva é empírica: a **mesma pasta** `refactor-arch/`, sem nenhuma edição, foi copiada para dentro de `ecommerce-api-legacy/` (Node/Express) e `task-manager-api/` (Python/Flask parcialmente organizado) — ver seção C para os resultados nos 3 projetos.
+
+### Desafios encontrados
+
+- Equilibrar o catálogo para não ficar restrito a um único projeto: como os 3 projetos têm perfis bem diferentes (monolito sem nenhuma camada vs. projeto já com `models/routes/services/utils`), cada anti-pattern precisou de um sinal de detecção descrito de forma "greppável" e não amarrado à estrutura de pastas de nenhum projeto específico.
+- Decidir a profundidade da Fase 3 para o projeto já organizado (`task-manager-api`) sem que a skill reescrevesse código que já estava adequado só por uniformidade — resolvido com a "estratégia adaptativa" em `mvc-guidelines.md`.
+- Expressar a regra de "comportamento preservado, exceto correção de segurança" sem abrir brecha para que a Fase 3 trate controles de segurança desligados por flag como "resolvido" — por isso a regra 4 do `SKILL.md` é explícita sobre isso.
 
 ## C) Resultados
 

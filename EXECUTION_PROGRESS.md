@@ -12,7 +12,7 @@ Repositório: egon89/mba-ia-refactor-projects-skill (fork de devfullcycle/mba-ia
 |---|---|---|---|
 | 0. Setup | 0.1–0.2 | ✅ | Não |
 | 1. Análise manual | 1.1–1.4 | ✅ | Não |
-| 2. Criação da skill | 2.1–2.6 | ⬜ | Sim — 2.6 (aprovar commit) |
+| 2. Criação da skill | 2.1–2.6 | 🔄 | Sim — 2.6 (aprovar commit) |
 | 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | ⬜ | Sim — 3.1/3.3/3.4/3.6 |
 | 4. Execução Projeto 2 (ecommerce-api-legacy) | 4.1–4.6 | ⬜ | Sim — 4.2/4.4/4.5/4.6 |
 | 5. Execução Projeto 3 (task-manager-api) | 5.1–5.6 | ⬜ | Sim — 5.2/5.4/5.5/5.6 |
@@ -96,37 +96,42 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 2 — Design e criação da skill `refactor-arch`
 
 ### Etapa 2.1 — Definir estrutura de arquivos de referência
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 1.4
 - **Critério de "feito":** Lista de arquivos decidida (SKILL.md + arquivos cobrindo as 5 áreas obrigatórias), combinando ideias de múltiplas referências em `resources/`.
+- **Notas / decisões:** Estrutura: `SKILL.md` + `references/{project-analysis,anti-patterns-catalog,mvc-guidelines,refactoring-playbook,report-template}.md`. Inspirada (sem copiar literalmente) em 5 das 7 soluções de `resources/` (dayvisonassis, filipe1309, leomhl, javielrezende, glaide): catálogo com IDs estáveis (AP-NN) + tabela de severidade, playbook com antes/depois alternando Python/JS, SKILL.md com "regras invioláveis" + tabela de arquivos de referência carregados sob demanda.
 
 ### Etapa 2.2 — Escrever catálogo de anti-patterns
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não (recomendável revisão)
 - **Depende de:** 2.1
 - **Critério de "feito":** ≥8 anti-patterns, severidades distribuídas (CRITICAL/HIGH/MEDIUM/LOW), sinais de detecção concretos, detecção de APIs deprecated incluída, cobre os problemas reais da Fase 1.
+- **Notas / decisões:** 14 anti-patterns (AP-01 a AP-14): CRITICAL 5 / HIGH 4 / MEDIUM 3 / LOW 2. AP-12 cobre detecção de APIs deprecated explicitamente. Catálogo cobre todos os achados da análise manual dos 3 projetos.
 
 ### Etapa 2.3 — Escrever demais arquivos de referência
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 2.1, 2.2
 - **Critério de "feito":** `project-analysis.md`, `mvc-guidelines.md`, `refactoring-playbook.md` (≥8 transformações antes/depois), `report-template.md` escritos e consistentes entre si.
+- **Notas / decisões:** Playbook com 14 transformações (RP-01 a RP-14), uma por anti-pattern do catálogo. `mvc-guidelines.md` inclui estratégia adaptativa (monolítico vs. já em camadas) — importante para o projeto 3. `report-template.md` segue o formato do exemplo do `challenge.md`, com seção obrigatória "Deprecated APIs".
 
 ### Etapa 2.4 — Escrever SKILL.md (3 fases)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 2.2, 2.3
 - **Critério de "feito":** Orquestra Fase 1/2/3, com instrução inequívoca de pausa obrigatória na Fase 2 antes de qualquer modificação.
+- **Notas / decisões:** 5 "regras invioláveis" no topo (nenhuma escrita antes do `y`, arquivo:linha real, nenhuma suposição de stack, comportamento preservado exceto correção de segurança, sem números alucinados). Pausa da Fase 2 é um `[y/n]` explícito com tratamento de resposta ambígua como "n".
 
 ### Etapa 2.5 — Posicionar a skill em code-smells-project
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 2.4
 - **Critério de "feito":** `code-smells-project/.claude/skills/refactor-arch/SKILL.md` + arquivos de referência existem.
+- **Notas / decisões:** Criada em `code-smells-project/.claude/skills/refactor-arch/` (SKILL.md + 5 arquivos em `references/`).
 
 ### Etapa 2.6 📝 — Commit da skill + atualizar README (seção B)
-- **Status:** ⬜ Pendente
+- **Status:** ⬛ Pronta para commit — aguardando aprovação do usuário
 - **Ação humana obrigatória:** Sim — aprovar commit.
 - **Depende de:** 2.5, 0.2
 - **Critério de "feito":** Commit "feat: add refactor-arch skill" criado com aprovação; README atualizado com a seção B) Construção da Skill (decisões de design, anti-patterns escolhidos e por quê, como garantiu agnosticismo, desafios encontrados).
