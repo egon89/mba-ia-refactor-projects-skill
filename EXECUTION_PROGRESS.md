@@ -231,38 +231,44 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 5 — Execução no Projeto 3 (task-manager-api)
 
 ### Etapa 5.1 — Copiar a skill para o projeto 3
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 4.6
 - **Critério de "feito":** Cópia idêntica em `task-manager-api/.claude/skills/refactor-arch/`.
+- **Notas / decisões:** Copiada com `cp -R` e verificada com `diff -rq` — cópia idêntica, sem edição manual. Pronta para o usuário rodar `claude "/refactor-arch"` dentro de `task-manager-api/`.
 
 ### Etapa 5.2 — Rodar `/refactor-arch` (Fases 1 e 2)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — executar comando interativamente.
 - **Depende de:** 5.1
 - **Critério de "feito":** Detecta Python/Flask e domínio "Task Manager"; encontra problemas mesmo com organização parcial.
+- **Notas / decisões:** Detecção correta, incluindo a observação de que a estrutura existente (models/routes/services/utils) acumula validação/ORM/regra/serialização nas rotas. 11 findings: CRITICAL 3 / HIGH 3 / MEDIUM 3 / LOW 2.
 
 ### Etapa 5.3 — Observar relatório de auditoria
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 5.2
+- **Notas / decisões:** Relatório completo com 16 ocorrências de `Model.query.get` e 22 de `datetime.utcnow()` listadas na seção "Deprecated APIs". Salvo em `reports/audit-project-3.md`.
 
 ### Etapa 5.4 — PAUSA: confirmação antes da Fase 3
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim, crítica.
 - **Depende de:** 5.3
+- **Notas / decisões:** Usuário confirmou `y` após revisar o relatório.
 
 ### Etapa 5.5 — Executar Fase 3 e validar (atenção: melhorar, não recriar)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — validação manual mais cuidadosa (risco maior de regressão em projeto já parcialmente estruturado).
 - **Depende de:** 5.4
 - **Critério de "feito":** Endpoints continuam respondendo; estrutura reorganizada corretamente (ex.: categorias saem de `report_routes.py`, notification_service usado ou removido com justificativa).
+- **Notas / decisões:** 6/6 CRITICAL/HIGH resolvidos, 5/5 MEDIUM/LOW resolvidos. Skill melhorou a estrutura existente em vez de recriar do zero (models mantidos com correções); categorias e login ganharam blueprint próprio; `notification_service.py` (nunca chamado) removido com justificativa documentada. Validação com 68 chamadas da linha de base relatada no próprio `reports/audit-project-3.md`.
 
 ### Etapa 5.6 📝 — Salvar relatório, commit e atualizar README (seção C, projeto 3)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — aprovar commit.
 - **Depende de:** 5.3, 5.5
 - **Critério de "feito":** `reports/audit-project-3.md` salvo, código refatorado commitado, README atualizado com o resumo do projeto 3 (seção C).
+- **Notas / decisões:** Adicionados `Dockerfile`, `docker-compose.yml`, `.dockerignore` e seção "Docker (docker compose)" + "Exemplos de uso (curl)" no `task-manager-api/README.md`. Validado end-to-end via `docker compose up --build -d`: login, tasks (listar/criar/buscar/stats/deletar), categorias, usuários (criar público, listar, deletar admin) e relatórios — todas as respostas conferem com o relatório. Seção C do README raiz preenchida para o projeto 3. Aguardando commit único (código refatorado + docker + READMEs + este arquivo).
 
 ---
 

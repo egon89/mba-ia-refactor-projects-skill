@@ -225,9 +225,71 @@ Todos com `arquivo:linha` reais (ex.: segredos hardcoded em `utils.js:2-5`, dado
 
 **Observações sobre o comportamento da skill:** a mesma skill, sem nenhuma edição, detectou corretamente uma stack e um domínio completamente diferentes do projeto 1 (Node/Express/LMS vs. Python/Flask/E-commerce) — evidência direta de agnosticismo de tecnologia. A Fase 2 também elevou a severidade de um finding (erros ignorados, de LOW para HIGH) por ter confirmado na linha de base que uma requisição específica (`"card"` numérico) derrubava o processo — mostrando que a skill valida impacto real, não só o padrão de código. Uma pendência foi conscientemente mantida e documentada no relatório (checkout com e-mail já cadastrado continua matriculando sem verificar a senha), por não fazer parte da lista de breaking changes confirmada antes da Fase 3.
 
-### Projeto 3
+### Projeto 3 — task-manager-api
 
-*(a ser preenchido na Fase 5 — execução da skill em `task-manager-api`)*
+A skill `refactor-arch` foi copiada sem nenhuma alteração para `task-manager-api/.claude/skills/refactor-arch/` (verificado com `diff -rq` contra a cópia do projeto 1) e executada com `claude "/refactor-arch"` dentro do projeto. Relatório completo em [`reports/audit-project-3.md`](reports/audit-project-3.md).
+
+Este projeto é diferente dos outros dois: já chegava parcialmente organizado em camadas (`models/`, `routes/`, `services/`, `utils/`), então o objetivo era testar se a skill melhora uma estrutura existente em vez de recriá-la do zero.
+
+**Fase 1 — Análise:** Python + Flask 3.0.0 (Flask-SQLAlchemy 3.1.1), domínio de gerenciamento de tarefas, 15 arquivos / ~1158 linhas analisados — a skill identificou corretamente que a organização em pastas já existia, mas que as rotas acumulavam validação, acesso ao ORM, regra de negócio e serialização, sem camada de controller/service de fato em uso.
+
+**Fase 2 — Auditoria:**
+
+| Severidade | Findings |
+|---|---|
+| CRITICAL | 3 |
+| HIGH | 3 |
+| MEDIUM | 3 |
+| LOW | 2 |
+| **Total** | **11** |
+
+Todos com `arquivo:linha` reais (ex.: hash MD5 sem salt em `models/user.py:29,32`, campo `password` exposto em 4 respostas). Seção "Deprecated APIs" com 16 ocorrências de `Model.query.get()` (legado no SQLAlchemy 2.x) e 22 de `datetime.utcnow()` (deprecated desde Python 3.12), listadas arquivo por arquivo. A skill pausou corretamente pedindo confirmação antes da Fase 3.
+
+**Fase 3 — Refatoração:** melhoria direcionada sobre as pastas já existentes — `models/` mantidos (com correções), novas camadas `config/`, `services/`, `controllers/`, `views/`, `middlewares/`; `routes/` reescrito para conter só declaração de rota (caiu de 734 para 59 linhas), com blueprint próprio para categorias e login (antes misturados em `report_routes.py` e `user_routes.py`). `services/notification_service.py`, que nunca era chamado, foi removido com a justificativa documentada no relatório. 6/6 findings CRITICAL/HIGH resolvidos, 5/5 MEDIUM/LOW resolvidos.
+
+**Antes → Depois da estrutura:**
+
+| Antes | Depois |
+|---|---|
+| `routes/` com 734 linhas fazendo tudo (parsing, validação, ORM, regra, serialização) | `routes/` com 59 linhas (só declaração); `controllers/`, `services/`, `views/` novos |
+| Categorias e login dentro de `report_routes.py` / `user_routes.py` | Blueprints próprios (`category_routes.py`, `auth_routes.py`) |
+| `Task.is_overdue()` existia mas a regra era copiada em 6 lugares | Fonte única chamada por todas as rotas |
+| Hash de senha com MD5 sem salt; `password` retornado em 4 respostas | `werkzeug.security` (scrypt) + campo nunca serializado |
+| Token `'fake-jwt-token-' + id`, sem autenticação em nenhuma rota | Token assinado com expiração + middleware de autenticação/autorização |
+| `services/notification_service.py` com credenciais SMTP, nunca chamado | Removido |
+
+**Checklist de validação (task-manager-api):**
+
+```
+### Fase 1 — Análise
+- [x] Linguagem detectada corretamente
+- [x] Framework detectado corretamente
+- [x] Domínio da aplicação descrito corretamente
+- [x] Número de arquivos analisados condiz com a realidade
+
+### Fase 2 — Auditoria
+- [x] Relatório segue o template definido nos arquivos de referência
+- [x] Cada finding tem arquivo e linhas exatos
+- [x] Findings ordenados por severidade (CRITICAL → LOW)
+- [x] Mínimo de 5 findings identificados (11 encontrados)
+- [x] Detecção de APIs deprecated incluída (Model.query.get e datetime.utcnow, 38 ocorrências)
+- [x] Skill pausa e pede confirmação antes da Fase 3
+
+### Fase 3 — Refatoração
+- [x] Estrutura de diretórios segue padrão MVC
+- [x] Configuração extraída para módulo de config (sem hardcoded)
+- [x] Models criados/mantidos para abstrair dados
+- [x] Views/Routes separadas para visualização ou roteamento
+- [x] Controllers concentram o fluxo da aplicação
+- [x] Error handling centralizado
+- [x] Entry point claro
+- [x] Aplicação inicia sem erros
+- [x] Endpoints originais respondem corretamente (com breaking changes de segurança documentados no relatório)
+```
+
+**Evidência de que a aplicação funciona pós-refatoração:** validado nesta sessão subindo o projeto via Docker Compose (`docker compose up --build -d`, ver `task-manager-api/README.md`) e executando `curl` real contra login, tasks (listar/criar/buscar/estatísticas/deletar), categorias, usuários (cadastro público, listagem, delete admin) e relatórios — todas as respostas conferem com o comportamento documentado no relatório, incluindo `401` nas rotas protegidas sem token.
+
+**Observações sobre o comportamento da skill:** diferente dos projetos 1 e 2 (onde a estrutura MVC foi criada do zero), aqui a skill seguiu a "estratégia adaptativa" dos arquivos de referência — manteve os `models/` existentes, só corrigindo o que estava errado (hash, serialização), e extraiu `controllers/`/`services/`/`views/` novos a partir da lógica já presente nas rotas, em vez de descartar o trabalho já feito. Também identificou e removeu corretamente um módulo morto (`notification_service.py`) que carregava credenciais SMTP sem uso nenhum, e documentou a decisão em vez de simplesmente deletar silenciosamente.
 
 ## D) Como Executar
 
