@@ -13,7 +13,7 @@ Repositório: egon89/mba-ia-refactor-projects-skill (fork de devfullcycle/mba-ia
 | 0. Setup | 0.1–0.2 | ✅ | Não |
 | 1. Análise manual | 1.1–1.4 | ✅ | Não |
 | 2. Criação da skill | 2.1–2.6 | 🔄 | Sim — 2.6 (aprovar commit) |
-| 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | ⬜ | Sim — 3.1/3.3/3.4/3.6 |
+| 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | 🔄 | Sim — 3.6 (aprovar commit) |
 | 4. Execução Projeto 2 (ecommerce-api-legacy) | 4.1–4.6 | ⬜ | Sim — 4.2/4.4/4.5/4.6 |
 | 5. Execução Projeto 3 (task-manager-api) | 5.1–5.6 | ⬜ | Sim — 5.2/5.4/5.5/5.6 |
 | 6. Relatórios e evidências | 6.1–6.3 | ⬜ | Sim — 6.3 (capturar evidências) |
@@ -141,40 +141,46 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 3 — Execução no Projeto 1 (code-smells-project)
 
 ### Etapa 3.1 — Rodar `/refactor-arch` (Fase 1 da skill)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — executar `claude "/refactor-arch"` interativamente dentro de `code-smells-project/`.
 - **Depende de:** 2.6
 - **Critério de "feito":** Stack (Python/Flask), domínio e nº de arquivos detectados corretamente.
+- **Notas / decisões:** Executado pelo usuário diretamente no Claude Code.
 
 ### Etapa 3.2 — Observar Fase 2 da skill (auditoria)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não (observação)
 - **Depende de:** 3.1
 - **Critério de "feito":** ≥5 findings, ≥1 CRITICAL/HIGH, ordenados por severidade, arquivo:linha exatos, segue o template.
+- **Notas / decisões:** 13 findings (CRITICAL 5, HIGH 4, MEDIUM 2, LOW 2), seção "Deprecated APIs" presente com declaração explícita de ausência. Ver `reports/audit-project-1.md`.
 
 ### Etapa 3.3 — PAUSA: confirmação antes da Fase 3
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim, crítica — ler relatório e decidir y/n.
 - **Depende de:** 3.2
 - **Critério de "feito":** Decisão registrada com timestamp e racional nas notas.
+- **Notas / decisões:** Usuário confirmou `y` e a Fase 3 foi executada.
 
 ### Etapa 3.4 — Executar Fase 3 e validar
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — validar manualmente boot + endpoints.
 - **Depende de:** 3.3 (somente se `y`)
 - **Critério de "feito":** Estrutura MVC criada, app inicia sem erro, endpoints originais respondem, checklist de validação preenchido.
+- **Notas / decisões:** Skill reportou boot sem erro e 35 chamadas HTTP comparadas contra a linha de base (ver "Resultado da Refatoração" em `reports/audit-project-1.md`). 9/9 findings CRITICAL/HIGH resolvidos, 4/4 MEDIUM/LOW resolvidos. Validação adicional feita nesta sessão via Docker Compose (ver nota da etapa 3.6).
 
 ### Etapa 3.5 — Salvar relatório
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 3.2
 - **Critério de "feito":** `reports/audit-project-1.md` criado na raiz do repo com o output real da Fase 2.
+- **Notas / decisões:** Salvo em `reports/audit-project-1.md` (138 linhas), com seção final "Resultado da Refatoração" incluindo breaking changes de segurança.
 
 ### Etapa 3.6 📝 — Commit do código refatorado + atualizar README (seção C, projeto 1)
-- **Status:** ⬜ Pendente
+- **Status:** ⬛ Pronta para commit — aguardando aprovação do usuário
 - **Ação humana obrigatória:** Sim — aprovar commit.
 - **Depende de:** 3.4, 3.5
 - **Critério de "feito":** Commit aprovado; README atualizado com o resumo do relatório do projeto 1 (findings por severidade), comparação antes/depois da estrutura e checklist de validação preenchido para este projeto.
+- **Notas / decisões:** Além do código refatorado e do relatório, esta sessão adicionou `Dockerfile`, `docker-compose.yml` e `.dockerignore` ao projeto, e documentou no `code-smells-project/README.md` como subir via `docker compose` e exemplos `curl` para todos os endpoints (públicos, autenticados e admin). **Validado de ponta a ponta nesta sessão:** `docker compose up --build` subiu a aplicação, e cada comando `curl` do README foi executado de fato contra o container (login, CRUD de produto, pedido, relatório de vendas, 401 sem token, reset-db, busca). Um erro foi encontrado e corrigido durante a validação: o exemplo original usava a categoria "periféricos", que não é uma categoria válida — corrigido para "eletronicos". Ambiente de teste derrubado com `docker compose down -v` ao final.
 
 ---
 

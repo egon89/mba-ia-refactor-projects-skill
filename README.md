@@ -97,7 +97,73 @@ O catálogo tem 14 entradas (acima do mínimo de 8), com distribuição CRITICAL
 
 ## C) Resultados
 
-*(a ser preenchido progressivamente nas Fases 3, 4, 5 e 6 — execução da skill nos 3 projetos, relatórios e evidências)*
+### Projeto 1 — code-smells-project
+
+A skill `refactor-arch` foi executada com `claude "/refactor-arch"` dentro de `code-smells-project/`. Relatório completo em [`reports/audit-project-1.md`](reports/audit-project-1.md).
+
+**Fase 1 — Análise:** Python + Flask 3.1.1 (sqlite3 bruto, sem ORM), domínio de E-commerce, 4 arquivos / ~780 linhas analisados — detecção correta.
+
+**Fase 2 — Auditoria:**
+
+| Severidade | Findings |
+|---|---|
+| CRITICAL | 5 |
+| HIGH | 4 |
+| MEDIUM | 2 |
+| LOW | 2 |
+| **Total** | **13** |
+
+Todos com `arquivo:linha` reais (ex.: SQL Injection em 19 pontos de `models.py`). Seção "Deprecated APIs" presente, com declaração explícita de que nenhuma foi encontrada (Flask 3.1.1 e sqlite3 da stdlib verificados). A skill pausou corretamente pedindo confirmação antes da Fase 3.
+
+**Fase 3 — Refatoração:** estrutura MVC completa criada em `src/` (`config/`, `database/`, `models/`, `services/`, `controllers/`, `views/`, `middlewares/`, `utils/`); `controllers.py`, `models.py` e `database.py` legados removidos. 9/9 findings CRITICAL/HIGH resolvidos, 4/4 MEDIUM/LOW resolvidos.
+
+**Antes → Depois da estrutura:**
+
+| Antes | Depois |
+|---|---|
+| 4 arquivos (`app.py`, `controllers.py`, `models.py`, `database.py`), tudo misturado | `app.py` (entry point) + `src/` em 8 camadas, 44 arquivos `.py`, 1151 linhas |
+| SQL por concatenação de string | Queries parametrizadas |
+| `SECRET_KEY`/`DEBUG`/CORS hardcoded | Configuração via variáveis de ambiente (`.env.example`) |
+| `/admin/query` (SQL arbitrário, sem auth) | Endpoint removido |
+| Senha em texto plano, retornada pela API | Hash de senha + nunca serializada |
+| Nenhuma autenticação real | Token assinado + gate de autenticação/autorização em todas as rotas sensíveis |
+
+**Checklist de validação (code-smells-project):**
+
+```
+### Fase 1 — Análise
+- [x] Linguagem detectada corretamente
+- [x] Framework detectado corretamente
+- [x] Domínio da aplicação descrito corretamente
+- [x] Número de arquivos analisados condiz com a realidade
+
+### Fase 2 — Auditoria
+- [x] Relatório segue o template definido nos arquivos de referência
+- [x] Cada finding tem arquivo e linhas exatos
+- [x] Findings ordenados por severidade (CRITICAL → LOW)
+- [x] Mínimo de 5 findings identificados (13 encontrados)
+- [x] Detecção de APIs deprecated incluída (nenhuma encontrada, declarado explicitamente)
+- [x] Skill pausa e pede confirmação antes da Fase 3
+
+### Fase 3 — Refatoração
+- [x] Estrutura de diretórios segue padrão MVC
+- [x] Configuração extraída para módulo de config (sem hardcoded)
+- [x] Models criados para abstrair dados
+- [x] Views/Routes separadas para visualização ou roteamento
+- [x] Controllers concentram o fluxo da aplicação
+- [x] Error handling centralizado
+- [x] Entry point claro
+- [x] Aplicação inicia sem erros
+- [x] Endpoints originais respondem corretamente (com breaking changes de segurança documentados no relatório)
+```
+
+**Evidência de que a aplicação funciona pós-refatoração:** validado nesta sessão subindo o projeto via Docker Compose (`docker compose up --build`, ver `code-smells-project/README.md`) e executando `curl` real contra todos os endpoints — públicos, autenticados e de admin, incluindo o caso de erro esperado (`401` sem token). Um exemplo de `curl` tinha um valor de categoria inválido para o endpoint de criação de produto; o erro foi pego durante essa validação e corrigido no README antes de ser documentado como funcional.
+
+**Observações sobre o comportamento da skill:** a Fase 2 identificou corretamente os 5 problemas CRITICAL/HIGH mínimos exigidos (na verdade, encontrou todos os 9 CRITICAL/HIGH do catálogo presentes no projeto), e a Fase 3 tratou a ausência total de autenticação como o caso mais grave do anti-pattern AP-08, construindo o mecanismo do zero em vez de ignorá-lo por "não haver nada para corrigir" — exatamente o comportamento esperado descrito nas regras do `SKILL.md`.
+
+### Projetos 2 e 3
+
+*(a ser preenchido nas Fases 4 e 5 — execução da skill em `ecommerce-api-legacy` e `task-manager-api`)*
 
 ## D) Como Executar
 
