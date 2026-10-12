@@ -2,7 +2,7 @@
 
 Fork do desafio [devfullcycle/mba-ia-refactor-projects-skill](https://github.com/devfullcycle/mba-ia-refactor-projects-skill): criação da Claude Code Skill `refactor-arch`, que analisa, audita e refatora para o padrão MVC três projetos legados (`code-smells-project`, `ecommerce-api-legacy`, `task-manager-api`), de forma agnóstica de tecnologia.
 
-> Este README é construído de forma incremental, à medida que cada etapa do desafio é concluída (ver `EXECUTION_PROGRESS.md` para o detalhamento do processo). As seções B, C e D abaixo são preenchidas nas fases seguintes.
+> Este README foi construído de forma incremental, à medida que cada etapa do desafio era concluída (ver `EXECUTION_PROGRESS.md` para o detalhamento do processo).
 
 ## A) Análise Manual
 
@@ -293,4 +293,55 @@ Todos com `arquivo:linha` reais (ex.: hash MD5 sem salt em `models/user.py:29,32
 
 ## D) Como Executar
 
-*(a ser preenchido na Fase 7, após a skill estar criada e executada nos 3 projetos)*
+### Pré-requisitos
+
+- [Claude Code](https://claude.com/claude-code) instalado e autenticado (`claude --version`).
+- Docker + Docker Compose (v2, comando `docker compose`), para subir e validar os 3 projetos refatorados sem instalar Python/Node localmente.
+- Opcional, para rodar os projetos sem Docker: Python 3.12+ (`code-smells-project`, `task-manager-api`) e Node.js 20+ (`ecommerce-api-legacy`).
+
+A skill não exige nenhuma dependência própria — ela só lê/escreve arquivos de texto e código dentro do projeto onde é invocada.
+
+### Executar a skill `refactor-arch` em cada projeto
+
+A skill já está copiada, sem nenhuma alteração entre os projetos, em `<projeto>/.claude/skills/refactor-arch/`. Para rodar do zero em qualquer um dos 3 (ou repetir a execução):
+
+```bash
+# Projeto 1 — code-smells-project (Python/Flask)
+cd code-smells-project
+claude "/refactor-arch"
+
+# Projeto 2 — ecommerce-api-legacy (Node.js/Express)
+cd ../ecommerce-api-legacy
+claude "/refactor-arch"
+
+# Projeto 3 — task-manager-api (Python/Flask, parcialmente organizado)
+cd ../task-manager-api
+claude "/refactor-arch"
+```
+
+Em cada execução:
+
+1. **Fase 1** — a skill identifica linguagem, framework, domínio e lista os arquivos do projeto.
+2. **Fase 2** — gera o relatório de auditoria (findings ordenados por severidade, com `arquivo:linha`) e **pausa pedindo confirmação explícita (`y`/`n`)** antes de tocar em qualquer arquivo.
+3. **Fase 3** — só roda após a confirmação; aplica a refatoração para MVC (do zero ou melhorando a estrutura existente, conforme o caso) e resume o resultado.
+
+Os relatórios gerados ficam salvos em [`reports/audit-project-1.md`](reports/audit-project-1.md), [`reports/audit-project-2.md`](reports/audit-project-2.md) e [`reports/audit-project-3.md`](reports/audit-project-3.md).
+
+### Como validar que a refatoração funcionou
+
+Cada projeto refatorado tem um `Dockerfile` e um `docker-compose.yml` próprios. Para cada um:
+
+```bash
+cd <projeto>
+docker compose up --build -d
+docker compose logs -f api   # confirma boot sem erro
+```
+
+Em seguida, use os exemplos de `curl` do `README.md` de cada projeto (seções "Exemplos de uso (curl)") para exercitar rotas públicas, autenticadas e administrativas, incluindo os casos de erro esperados (`401`/`403` sem token ou com papel insuficiente). Ao final, derrube o container:
+
+```bash
+docker compose down        # ecommerce-api-legacy e task-manager-api
+docker compose down -v     # code-smells-project (remove também o volume do SQLite)
+```
+
+Os logs de boot e as respostas reais de todas essas chamadas, capturadas nesta sessão como evidência, estão em [`reports/logs/`](reports/logs/) — um arquivo por projeto. O checklist de validação das Fases 1/2/3 do desafio, preenchido para os 3 projetos, está na seção C) Resultados, acima.

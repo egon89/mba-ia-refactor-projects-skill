@@ -299,16 +299,18 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 7 — README.md: revisão final (não é a primeira redação — seções A/B/C já foram escritas incrementalmente nas etapas 1.4, 2.6, 3.6/4.6/5.6/6.3)
 
 ### Etapa 7.1 — Escrever seção D) Como Executar
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não (só revisão)
 - **Depende de:** 2.6 (precisa da skill já criada para descrever pré-requisitos/comandos)
 - **Critério de "feito":** Seção D com pré-requisitos, comandos por projeto e como validar.
+- **Notas / decisões:** Seção D escrita com pré-requisitos (Claude Code + Docker/Compose, com alternativa local Python/Node), comandos `claude "/refactor-arch"` por projeto (iguais aos do `challenge.md`), as 3 fases explicadas (incluindo a pausa obrigatória), e instruções de validação via `docker compose up/down` + links para os `README.md` de cada projeto e para `reports/logs/`.
 
 ### Etapas 7.2–7.4 — Revisão final de consistência/tom das seções A/B/C/D
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — revisão final de conteúdo e tom antes de publicar.
 - **Depende de:** Fases 1–6 completas, 7.1
 - **Critério de "feito":** README contém as 4 seções obrigatórias (Análise Manual, Construção da Skill, Resultados, Como Executar), já escritas incrementalmente, apenas revisadas/polidas nesta etapa — sem redação do zero.
+- **Notas / decisões:** Removida a nota do topo do README que dizia que as seções B/C/D seriam preenchidas depois (não cabe mais, está tudo escrito). Verificado que não restam placeholders ("a ser preenchido") no arquivo. Todos os links internos (`reports/audit-project-*.md`, `reports/logs/*`) testados e resolvem para arquivos reais.
 
 ---
 
