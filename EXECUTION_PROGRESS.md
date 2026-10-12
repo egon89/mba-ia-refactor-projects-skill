@@ -1,6 +1,6 @@
 # Execution Progress — Desafio refactor-arch
 
-Última atualização: 2026-10-10
+Última atualização: 2026-10-12
 Repositório: egon89/mba-ia-refactor-projects-skill (fork de devfullcycle/mba-ia-refactor-projects-skill)
 
 ## Legenda de status
@@ -12,22 +12,24 @@ Repositório: egon89/mba-ia-refactor-projects-skill (fork de devfullcycle/mba-ia
 |---|---|---|---|
 | 0. Setup | 0.1–0.2 | ✅ | Não |
 | 1. Análise manual | 1.1–1.4 | ✅ | Não |
-| 2. Criação da skill | 2.1–2.6 | 🔄 | Sim — 2.6 (aprovar commit) |
+| 2. Criação da skill | 2.1–2.6 | ✅ | Não |
 | 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | ✅ | Não |
-| 4. Execução Projeto 2 (ecommerce-api-legacy) | 4.1–4.6 | ⬜ | Sim — 4.2/4.4/4.5/4.6 |
-| 5. Execução Projeto 3 (task-manager-api) | 5.1–5.6 | ⬜ | Sim — 5.2/5.4/5.5/5.6 |
-| 6. Relatórios e evidências | 6.1–6.3 | ⬜ | Sim — 6.3 (capturar evidências) |
-| 7. README final | 7.1–7.4 | ⬜ | Sim — revisão de conteúdo |
-| 8. Entrega | 8.1–8.3 | ⬜ | Sim — push final + verificação pública |
+| 4. Execução Projeto 2 (ecommerce-api-legacy) | 4.1–4.6 | ✅ | Não |
+| 5. Execução Projeto 3 (task-manager-api) | 5.1–5.6 | ✅ | Não |
+| 6. Relatórios e evidências | 6.1–6.3 | ✅ | Não |
+| 7. README final | 7.1–7.4 | ✅ | Não |
+| 8. Entrega | 8.1–8.2 | ✅ | Não |
 
-## Pontos de ação humana obrigatória (não delegáveis)
+**Desafio concluído e publicado em `origin/main` (commit `c7f7a3c`).**
 
-1. **3.3 / 4.4 / 5.4** — as 3 pausas de confirmação da Fase 2 de cada execução da skill (requisito explícito do desafio: "A Fase 2 deve pausar e pedir confirmação antes de modificar qualquer arquivo").
-2. **3.1/3.4, 4.2/4.5, 5.2/5.5** — execução interativa do comando `claude "/refactor-arch"` e validação manual de boot/endpoints pós-refatoração.
-3. **1.4** — aprovação do conteúdo da análise manual antes de seguir para a criação da skill.
-4. **6.3** — captura de evidências (screenshots/logs das apps rodando).
-5. **7.1–7.4** — revisão do README final antes de publicar.
-6. **8.2 / 8.3** — autorização explícita do push final e verificação pública do repositório.
+## Pontos de ação humana obrigatória (não delegáveis) — histórico
+
+1. **3.3 / 4.4 / 5.4** — as 3 pausas de confirmação da Fase 2 de cada execução da skill (requisito explícito do desafio: "A Fase 2 deve pausar e pedir confirmação antes de modificar qualquer arquivo"). ✅
+2. **3.1/3.4, 4.2/4.5, 5.2/5.5** — execução interativa do comando `claude "/refactor-arch"` e validação manual de boot/endpoints pós-refatoração. ✅
+3. **1.4** — aprovação do conteúdo da análise manual antes de seguir para a criação da skill. ✅
+4. **6.3** — captura de evidências (logs das apps rodando). ✅
+5. **7.1–7.4** — revisão do README final antes de publicar. ✅
+6. **8.2** — autorização explícita do push final. ✅ (etapa 8.3 de verificação pública no GitHub foi removida do plano — considerada não necessária)
 
 ## Regra sobre atualização incremental do README.md
 
@@ -317,16 +319,14 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 8 — Entrega final
 
 ### Etapa 8.1 — Revisar git status/diff completo
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não (recomendável revisão)
 - **Depende de:** 7.4
+- **Notas / decisões:** `git status` confirmado limpo (working tree sem alterações pendentes) antes do push. Histórico de 9 commits locais, todos já descritos neste arquivo.
 
 ### Etapa 8.2 — Push para origin/main
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim, crítica — autorizar push explicitamente. Nunca force-push.
 - **Depende de:** 8.1
+- **Notas / decisões:** Usuário autorizou explicitamente ("acredito que não há diff, basta realizar o push"). `git fetch` mostrou que o remoto já estava sincronizado até `d0b2e54` (push anterior, fora desta sessão); restava publicar só `c7f7a3c`. `git push origin main` executado com sucesso (fast-forward `d0b2e54..c7f7a3c`), sem force-push.
 
-### Etapa 8.3 — Verificação pública no GitHub
-- **Status:** ⬜ Pendente
-- **Ação humana obrigatória:** Sim — checagem visual (skill nos 3 projetos, reports/ na raiz, README renderizado).
-- **Depende de:** 8.2
