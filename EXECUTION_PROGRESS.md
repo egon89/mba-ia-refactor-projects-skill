@@ -13,7 +13,7 @@ Repositório: egon89/mba-ia-refactor-projects-skill (fork de devfullcycle/mba-ia
 | 0. Setup | 0.1–0.2 | ✅ | Não |
 | 1. Análise manual | 1.1–1.4 | ✅ | Não |
 | 2. Criação da skill | 2.1–2.6 | 🔄 | Sim — 2.6 (aprovar commit) |
-| 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | 🔄 | Sim — 3.6 (aprovar commit) |
+| 3. Execução Projeto 1 (code-smells-project) | 3.1–3.6 | ✅ | Não |
 | 4. Execução Projeto 2 (ecommerce-api-legacy) | 4.1–4.6 | ⬜ | Sim — 4.2/4.4/4.5/4.6 |
 | 5. Execução Projeto 3 (task-manager-api) | 5.1–5.6 | ⬜ | Sim — 5.2/5.4/5.5/5.6 |
 | 6. Relatórios e evidências | 6.1–6.3 | ⬜ | Sim — 6.3 (capturar evidências) |
@@ -176,11 +176,11 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 - **Notas / decisões:** Salvo em `reports/audit-project-1.md` (138 linhas), com seção final "Resultado da Refatoração" incluindo breaking changes de segurança.
 
 ### Etapa 3.6 📝 — Commit do código refatorado + atualizar README (seção C, projeto 1)
-- **Status:** ⬛ Pronta para commit — aguardando aprovação do usuário
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — aprovar commit.
 - **Depende de:** 3.4, 3.5
 - **Critério de "feito":** Commit aprovado; README atualizado com o resumo do relatório do projeto 1 (findings por severidade), comparação antes/depois da estrutura e checklist de validação preenchido para este projeto.
-- **Notas / decisões:** Além do código refatorado e do relatório, esta sessão adicionou `Dockerfile`, `docker-compose.yml` e `.dockerignore` ao projeto, e documentou no `code-smells-project/README.md` como subir via `docker compose` e exemplos `curl` para todos os endpoints (públicos, autenticados e admin). **Validado de ponta a ponta nesta sessão:** `docker compose up --build` subiu a aplicação, e cada comando `curl` do README foi executado de fato contra o container (login, CRUD de produto, pedido, relatório de vendas, 401 sem token, reset-db, busca). Um erro foi encontrado e corrigido durante a validação: o exemplo original usava a categoria "periféricos", que não é uma categoria válida — corrigido para "eletronicos". Ambiente de teste derrubado com `docker compose down -v` ao final.
+- **Notas / decisões:** Além do código refatorado e do relatório, esta sessão adicionou `Dockerfile`, `docker-compose.yml` e `.dockerignore` ao projeto, e documentou no `code-smells-project/README.md` como subir via `docker compose` e exemplos `curl` para todos os endpoints (públicos, autenticados e admin). **Validado de ponta a ponta nesta sessão:** `docker compose up --build` subiu a aplicação, e cada comando `curl` do README foi executado de fato contra o container (login, CRUD de produto, pedido, relatório de vendas, 401 sem token, reset-db, busca). Um erro foi encontrado e corrigido durante a validação: o exemplo original usava a categoria "periféricos", que não é uma categoria válida — corrigido para "eletronicos". Ambiente de teste derrubado com `docker compose down -v` ao final. Commit `3290957` criado em 2026-10-12 (aprovado pelo usuário), com tudo junto num único commit.
 
 ---
 
