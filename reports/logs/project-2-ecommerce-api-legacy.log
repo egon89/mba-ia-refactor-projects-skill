@@ -1,0 +1,15 @@
+===== BOOT LOG (docker compose up --build -d) =====
+api-1  | Frankenstein LMS rodando na porta 3000...
+
+===== POST /api/checkout (sucesso) =====
+{"msg":"Sucesso","enrollment_id":2}
+===== POST /api/checkout (pagamento recusado) =====
+Pagamento recusado
+===== GET /api/admin/financial-report sem token (esperado 401) =====
+HTTP 401
+===== GET /api/admin/financial-report com token =====
+[{"course":"Clean Architecture","revenue":997,"students":[{"student":"Leonan","paid":997}]},{"course":"Docker","revenue":497,"students":[{"student":"Guilherme","paid":497}]}]
+===== DELETE /api/users/1 sem token (esperado 401) =====
+HTTP 401
+===== DELETE /api/users/1 com token =====
+Usuário deletado junto com suas matrículas e pagamentos.

@@ -1,7 +1,5 @@
 # Audit — code-smells-project
 
-> Os `arquivo:linha` dos findings referem-se ao código legado (commit `104c584`: `app.py`, `controllers.py`, `models.py`, `database.py`), antes da refatoração.
-
 ```
 ================================
 ARCHITECTURE AUDIT REPORT
@@ -108,6 +106,8 @@ Nenhuma API deprecated detectada. Verificado: Flask 3.1.1 (sem before_first_requ
 Total: 13 findings
 ================================
 ```
+
+Os caminhos e linhas acima se referem ao código legado anterior à refatoração (commit `104c584`: `app.py`, `controllers.py`, `models.py`, `database.py`, todos removidos ou substituídos).
 
 ## Resultado da Refatoração
 

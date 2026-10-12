@@ -275,21 +275,24 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 6 — Consolidação de relatórios e evidências
 
 ### Etapa 6.1 — Revisar os 3 relatórios
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — revisão editorial de consistência.
 - **Depende de:** 3.5, 4.6, 5.6
+- **Notas / decisões:** Estrutura já era consistente (Summary/Findings ordenados por severidade/Deprecated APIs/Total/Resultado da Refatoração nos 3). Normalizados pequenos detalhes de formatação: título H1 padronizado (`# Audit — <nome-do-projeto>`) nos 3 relatórios (faltava no 2, estava mais verboso no 3), e a nota "os caminhos se referem ao código legado" movida para a mesma posição (após o bloco de auditoria) nos 3.
 
 ### Etapa 6.2 — Preencher checklist de validação
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 6.1
 - **Critério de "feito":** Checklist das Fases 1/2/3 (challenge.md) preenchido para os 3 projetos.
+- **Notas / decisões:** Checklist (texto idêntico ao `challenge.md`) já preenchido e marcado para os 3 projetos nas respectivas subseções da seção C do README raiz (etapas 3.6/4.6/5.6).
 
 ### Etapa 6.3 📝 — Capturar evidências (logs/screenshots) e incorporar ao README
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — rodar as 3 apps refatoradas e capturar prints/curl de boot + endpoints.
 - **Depende de:** 3.4, 4.5, 5.5
 - **Critério de "feito":** Evidências salvas (ex.: `reports/screenshots/` ou `reports/logs/`) e referenciadas na seção C do README.
+- **Notas / decisões:** Logs capturados em `reports/logs/project-{1,2,3}-*.log`: para cada projeto, `docker compose up --build -d`, log de boot completo via `docker compose logs`, e respostas reais de `curl` cobrindo rotas públicas, autenticadas, admin e os casos de erro esperados (`401` sem token). Projeto 1 inclui também a confirmação de que `/admin/query` (removido na refatoração) agora responde 404. Arquivos referenciados na seção C do README raiz, um link por projeto. Containers derrubados (`down`/`down -v`) após a captura.
 
 ---
 
