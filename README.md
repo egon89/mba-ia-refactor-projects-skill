@@ -161,9 +161,73 @@ Todos com `arquivo:linha` reais (ex.: SQL Injection em 19 pontos de `models.py`)
 
 **Observações sobre o comportamento da skill:** a Fase 2 identificou corretamente os 5 problemas CRITICAL/HIGH mínimos exigidos (na verdade, encontrou todos os 9 CRITICAL/HIGH do catálogo presentes no projeto), e a Fase 3 tratou a ausência total de autenticação como o caso mais grave do anti-pattern AP-08, construindo o mecanismo do zero em vez de ignorá-lo por "não haver nada para corrigir" — exatamente o comportamento esperado descrito nas regras do `SKILL.md`.
 
-### Projetos 2 e 3
+### Projeto 2 — ecommerce-api-legacy
 
-*(a ser preenchido nas Fases 4 e 5 — execução da skill em `ecommerce-api-legacy` e `task-manager-api`)*
+A skill `refactor-arch` foi copiada sem nenhuma alteração para `ecommerce-api-legacy/.claude/skills/refactor-arch/` (verificado com `diff -rq` contra a cópia do projeto 1) e executada com `claude "/refactor-arch"` dentro do projeto. Relatório completo em [`reports/audit-project-2.md`](reports/audit-project-2.md).
+
+**Fase 1 — Análise:** JavaScript (Node.js) + Express 4, domínio de LMS com fluxo de checkout, 3 arquivos / ~180 linhas analisados — detecção correta, mesma skill e mesmo `SKILL.md` do projeto 1, sem nenhum ajuste manual para a nova stack.
+
+**Fase 2 — Auditoria:**
+
+| Severidade | Findings |
+|---|---|
+| CRITICAL | 3 |
+| HIGH | 4 |
+| MEDIUM | 4 |
+| LOW | 1 |
+| **Total** | **12** |
+
+Todos com `arquivo:linha` reais (ex.: segredos hardcoded em `utils.js:2-5`, dado de cartão e chave de gateway logados em `AppManager.js:45`). Seção "Deprecated APIs" presente, apontando o uso 100% callback do `sqlite3` (sem Promises nativas) como API desatualizada, e declarando explicitamente a ausência de APIs deprecated do Express 4.18. A skill pausou corretamente pedindo confirmação antes da Fase 3.
+
+**Fase 3 — Refatoração:** estrutura MVC completa criada em `src/` (`config/`, `database/`, `models/`, `services/`, `controllers/`, `routes/`, `middlewares/`, `utils/`); `AppManager.js` e `utils.js` legados removidos. 7/7 findings CRITICAL/HIGH resolvidos (com uma ressalva documentada — ver abaixo), 5/5 MEDIUM/LOW resolvidos.
+
+**Antes → Depois da estrutura:**
+
+| Antes | Depois |
+|---|---|
+| 3 arquivos (`app.js`, `AppManager.js`, `utils.js`), God Class com tudo misturado | `app.js` (entry point) + `src/` em 8 camadas, 25 arquivos `.js`, 534 linhas |
+| Callback hell de até 5 níveis, erros ignorados (podiam derrubar o processo) | Camada de banco promisificada + `async/await` + error handler central |
+| Senha "hash" via `badCrypto` (10k concatenações dos 2 primeiros caracteres, sem salt) | `crypto.scrypt` nativo, com salt |
+| Cartão completo e chave do gateway em `console.log` | Nenhum dado sensível logado |
+| Rotas admin e delete de usuário sem nenhuma autenticação | Middleware `requireAdmin` exigindo `Authorization: Bearer <ADMIN_API_TOKEN>` |
+| Checkout e delete sem transação (usuário/matrícula órfãos em falha parcial) | Operações em transação (`db.transaction`) |
+
+**Checklist de validação (ecommerce-api-legacy):**
+
+```
+### Fase 1 — Análise
+- [x] Linguagem detectada corretamente
+- [x] Framework detectado corretamente
+- [x] Domínio da aplicação descrito corretamente
+- [x] Número de arquivos analisados condiz com a realidade
+
+### Fase 2 — Auditoria
+- [x] Relatório segue o template definido nos arquivos de referência
+- [x] Cada finding tem arquivo e linhas exatos
+- [x] Findings ordenados por severidade (CRITICAL → LOW)
+- [x] Mínimo de 5 findings identificados (12 encontrados)
+- [x] Detecção de APIs deprecated incluída (sqlite3 callback-only identificado)
+- [x] Skill pausa e pede confirmação antes da Fase 3
+
+### Fase 3 — Refatoração
+- [x] Estrutura de diretórios segue padrão MVC
+- [x] Configuração extraída para módulo de config (sem hardcoded)
+- [x] Models criados para abstrair dados
+- [x] Views/Routes separadas para visualização ou roteamento
+- [x] Controllers concentram o fluxo da aplicação
+- [x] Error handling centralizado
+- [x] Entry point claro
+- [x] Aplicação inicia sem erros
+- [x] Endpoints originais respondem corretamente (com breaking changes de segurança documentados no relatório)
+```
+
+**Evidência de que a aplicação funciona pós-refatoração:** validado nesta sessão subindo o projeto via Docker Compose (`docker compose up --build -d`, ver `ecommerce-api-legacy/README.md`) e executando `curl` real contra os 3 endpoints — checkout aprovado e recusado, relatório financeiro admin (`401` sem token, `200` com token) e delete de usuário (`401` sem token, `200` com token, removendo também matrículas/pagamentos em cascata). Todas as respostas conferem com o comportamento documentado no relatório.
+
+**Observações sobre o comportamento da skill:** a mesma skill, sem nenhuma edição, detectou corretamente uma stack e um domínio completamente diferentes do projeto 1 (Node/Express/LMS vs. Python/Flask/E-commerce) — evidência direta de agnosticismo de tecnologia. A Fase 2 também elevou a severidade de um finding (erros ignorados, de LOW para HIGH) por ter confirmado na linha de base que uma requisição específica (`"card"` numérico) derrubava o processo — mostrando que a skill valida impacto real, não só o padrão de código. Uma pendência foi conscientemente mantida e documentada no relatório (checkout com e-mail já cadastrado continua matriculando sem verificar a senha), por não fazer parte da lista de breaking changes confirmada antes da Fase 3.
+
+### Projeto 3
+
+*(a ser preenchido na Fase 5 — execução da skill em `task-manager-api`)*
 
 ## D) Como Executar
 

@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: "3000"
+      ADMIN_API_TOKEN: dev-admin-token-change-me
+      PAYMENT_GATEWAY_KEY: dev-payment-gateway-key
+      DB_FILE: ":memory:"

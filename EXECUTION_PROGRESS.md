@@ -187,38 +187,44 @@ O `README.md` final **não é escrito de uma vez só na Fase 7** — ele é atua
 ## Fase 4 — Execução no Projeto 2 (ecommerce-api-legacy)
 
 ### Etapa 4.1 — Copiar a skill para o projeto 2
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 3.6
 - **Critério de "feito":** Cópia idêntica em `ecommerce-api-legacy/.claude/skills/refactor-arch/`, sem alterações manuais.
+- **Notas / decisões:** Copiada com `cp -R` e verificada com `diff -rq` — cópia idêntica, sem edição manual. Pronta para o usuário rodar `claude "/refactor-arch"` dentro de `ecommerce-api-legacy/`.
 
 ### Etapa 4.2 — Rodar `/refactor-arch` (Fases 1 e 2)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — executar comando interativamente.
 - **Depende de:** 4.1
 - **Critério de "feito":** Stack Node/Express e domínio (LMS/checkout) detectados corretamente; ≥5 findings.
+- **Notas / decisões:** Stack e domínio detectados corretamente (Node.js/Express, LMS com checkout). 12 findings: CRITICAL 3 / HIGH 4 / MEDIUM 4 / LOW 1.
 
 ### Etapa 4.3 — Observar relatório de auditoria
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Não
 - **Depende de:** 4.2
 - **Critério de "feito":** Relatório segue template, ≥1 CRITICAL/HIGH.
+- **Notas / decisões:** Relatório completo com severidades justificadas e seção "Deprecated APIs" (sqlite3 em estilo callback). Salvo em `reports/audit-project-2.md`.
 
 ### Etapa 4.4 — PAUSA: confirmação antes da Fase 3
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim, crítica.
 - **Depende de:** 4.3
+- **Notas / decisões:** Usuário confirmou `y` após revisar o relatório.
 
 ### Etapa 4.5 — Executar Fase 3 e validar
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — validação manual (sem `/health`; usar `api.http` como roteiro de smoke test).
 - **Depende de:** 4.4
+- **Notas / decisões:** 7/7 CRITICAL/HIGH resolvidos (com ressalva documentada no AP-08), 5/5 MEDIUM/LOW resolvidos. Validação com 15 chamadas da linha de base + testes de concorrência (20 checkouts simultâneos) relatados no próprio `reports/audit-project-2.md`.
 
 ### Etapa 4.6 📝 — Salvar relatório, commit e atualizar README (seção C, projeto 2)
-- **Status:** ⬜ Pendente
+- **Status:** ✅ Concluída
 - **Ação humana obrigatória:** Sim — aprovar commit.
 - **Depende de:** 4.3, 4.5
 - **Critério de "feito":** `reports/audit-project-2.md` salvo, código refatorado commitado, README atualizado com o resumo do projeto 2 (seção C).
+- **Notas / decisões:** Adicionados `Dockerfile`, `docker-compose.yml`, `.dockerignore` e seção "Docker (docker compose)" + "Exemplos de uso (curl)" no `ecommerce-api-legacy/README.md`. Validado end-to-end via `docker compose up --build -d`: checkout (sucesso e recusado), relatório financeiro admin (401 sem token, 200 com token) e delete de usuário (401 sem token, 200 com token) — todas as respostas conferem com o relatório. Seção C do README raiz preenchida para o projeto 2. Aguardando commit único (código refatorado + docker + READMEs + este arquivo).
 
 ---
 
