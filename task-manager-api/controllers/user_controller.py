@@ -16,6 +16,7 @@ def list_users():
 
 
 def get_user(user_id):
+    ensure_self_or_admin(user_id)
     user = user_service.get_user(user_id)
     return jsonify(user_view.user_detail(user, task_service.list_user_tasks(user_id))), 200
 
@@ -44,6 +45,7 @@ def delete_user(user_id):
 
 
 def list_user_tasks(user_id):
+    ensure_self_or_admin(user_id)
     user_service.get_user(user_id)
     tasks = task_service.list_user_tasks(user_id)
     return jsonify([task_view.user_task_item(task) for task in tasks]), 200

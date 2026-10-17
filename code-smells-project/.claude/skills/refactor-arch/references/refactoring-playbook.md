@@ -261,6 +261,54 @@ def deletar_usuario(id): ...
 ```
 Aplique o decorator/middleware de forma consistente: se uma rota de escrita do recurso exige autenticação, todas as rotas de escrita do mesmo recurso exigem — não só a mais "perigosa".
 
+**Autenticação não é autorização.** Exigir um token válido garante *quem* está fazendo a requisição, não *o que* essa pessoa pode acessar. Toda rota identificada por id que exponha ou mute um registro ligado a um usuário específico precisa, além do token, de uma checagem de posse do recurso (**owner-or-admin**): só o próprio dono ou um admin passa; qualquer outro usuário autenticado recebe `403`, não `200`.
+
+**Antes** (token exigido, mas sem checagem de dono — qualquer usuário autenticado lê/altera/apaga registro de outro)
+```python
+@task_bp.before_request(authenticate_request)  # só confere que HÁ um token válido
+
+def get_task(task_id):
+    return jsonify(task_service.get_task(task_id).to_dict())  # não compara task.user_id com o usuário autenticado
+
+def delete_task(task_id):
+    task_service.delete_task(task_id)  # idem
+```
+
+**Depois** (helper reutilizável de posse, aplicado a toda rota — recurso do próprio usuário e recurso com dono por FK)
+```python
+def exigir_proprio_usuario_ou_admin(dono_id):
+    """dono_id = id do usuário logado comparado ao dono do recurso.
+    Para /usuarios/<id>, dono_id é o próprio id da rota.
+    Para um recurso com FK de usuário (ex.: task.user_id), é o valor dessa coluna
+    no registro já carregado — nunca um id que vem direto da query string/body."""
+    usuario = g.usuario_atual
+    if usuario["id"] != dono_id and usuario["tipo"] != "admin":
+        raise ForbiddenError("Acesso negado")
+
+# recurso do próprio usuário: dono_id = id da rota
+def get_usuario(usuario_id):
+    exigir_proprio_usuario_ou_admin(usuario_id)
+    return jsonify(usuario_service.buscar(usuario_id).to_dict())
+
+# recurso com dono por chave estrangeira: dono_id = o dono do registro, não o id da rota
+def get_task(task_id):
+    task = task_service.buscar(task_id)
+    exigir_proprio_usuario_ou_admin(task.user_id)
+    return jsonify(task.to_dict())
+
+def update_task(task_id):
+    task = task_service.buscar(task_id)
+    exigir_proprio_usuario_ou_admin(task.user_id)
+    # bônus: se o payload tenta reatribuir o dono (ex.: user_id no body), só admin pode
+    ...
+
+def delete_task(task_id):
+    task = task_service.buscar(task_id)
+    exigir_proprio_usuario_ou_admin(task.user_id)
+    task_service.remover(task_id)
+```
+Aplique esse mesmo helper em **toda** rota `GET`/`PUT`/`DELETE` do recurso identificada por id, e em toda rota que lista um sub-recurso de um usuário (`/usuarios/<id>/tasks`, `/usuarios/<id>/pedidos`) — mesmo que o finding original da Fase 2 tenha citado só uma delas como exemplo. Um recurso sem autenticação nenhuma e um recurso autenticado mas sem checagem de dono são o **mesmo anti-pattern (AP-08)** em estágios diferentes; corrigir só o primeiro sem o segundo deixa o finding parcialmente resolvido.
+
 ---
 
 ## RP-09 — Eliminar estado global mutável

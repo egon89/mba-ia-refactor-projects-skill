@@ -1,6 +1,8 @@
-from flask import jsonify, request
+from flask import g, jsonify, request
 
+from middlewares.auth import ensure_self_or_admin
 from services import task_service
+from utils.errors import ForbiddenError
 from utils.validators import parse_int_param, validate_task_payload
 from views import task_view
 
@@ -10,7 +12,9 @@ def list_tasks():
 
 
 def get_task(task_id):
-    return jsonify(task_view.task_detail(task_service.get_task(task_id))), 200
+    task = task_service.get_task(task_id)
+    ensure_self_or_admin(task.user_id)
+    return jsonify(task_view.task_detail(task)), 200
 
 
 def create_task():
@@ -19,11 +23,17 @@ def create_task():
 
 
 def update_task(task_id):
+    task = task_service.get_task(task_id)
+    ensure_self_or_admin(task.user_id)
     fields = validate_task_payload(request.get_json(silent=True), partial=True)
+    if not g.current_user.is_admin() and 'user_id' in fields and fields['user_id'] != g.current_user.id:
+        raise ForbiddenError('Apenas administradores podem reatribuir a task para outro usuário')
     return jsonify(task_service.update_task(task_id, fields).to_dict()), 200
 
 
 def delete_task(task_id):
+    task = task_service.get_task(task_id)
+    ensure_self_or_admin(task.user_id)
     task_service.delete_task(task_id)
     return jsonify({'message': 'Task deletada com sucesso'}), 200
 

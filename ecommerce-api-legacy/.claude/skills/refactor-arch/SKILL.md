@@ -75,10 +75,12 @@ Só execute depois do `y` explícito.
 4. Crie/ajuste a estrutura de diretórios MVC da stack detectada.
 5. Migre em ordem de dependência, aplicando a transformação correspondente do playbook: `config/` → `models/` → `services/` → `controllers/` → `views/`/`routes/` → `middlewares/` → entry point/composition root.
 6. Corrija os findings da Fase 2 conforme o playbook. Todo finding CRITICAL ou HIGH deve estar resolvido ou, se não puder ser, explicitamente justificado no resumo final — "o controle existe mas está desligado por uma flag" não conta como resolvido.
+   - **AP-08 em particular:** autenticação (token válido) e autorização por dono do recurso (owner-or-admin) são correções diferentes — ver RP-08. Se o finding da Fase 2 citou *qualquer* rota que lê/altera/apaga dado pertencente a um usuário (do próprio recurso de usuário, ou de um recurso com FK de usuário como `tasks.user_id`/`pedidos.usuario_id`), aplique a checagem de dono em **todas** as rotas `GET`/`PUT`/`DELETE` desse recurso por id e em toda rota que lista sub-recurso de um usuário — não só na rota citada no finding. "Exige token" sem "exige ser o dono ou admin" é AP-08 só parcialmente resolvido.
 7. **Valide:**
    - a aplicação sobe sem erro (execute o comando de boot real e leia o log);
    - cada endpoint da linha de base responde com o mesmo status e a mesma forma de resposta (curl, `api.http` do projeto, ou testes existentes), exceto as rotas marcadas como breaking change de segurança;
-   - rode novamente os sinais de detecção do catálogo e confirme que os anti-patterns tratados não reaparecem no código novo.
+   - rode novamente os sinais de detecção do catálogo e confirme que os anti-patterns tratados não reaparecem no código novo;
+   - **se algum finding envolveu AP-08 com dado de usuário:** cadastre/autentique um segundo usuário comum (não-admin, não-dono) e confirme, via chamada real, que ele recebe `403` em cada rota por id do recurso afetado — não só que o dono e o admin continuam recebendo `200`.
    - Se algo falhar, corrija antes de declarar sucesso. Nunca reporte validação verde sem ter executado o boot e as chamadas de verdade.
 8. Imprima o bloco `PHASE 3: REFACTORING COMPLETE` com a nova árvore de diretórios, o resultado real da validação e a lista de breaking changes de segurança (se houver).
 9. Acrescente ao relatório salvo a seção "Resultado da Refatoração" (`report-template.md`).

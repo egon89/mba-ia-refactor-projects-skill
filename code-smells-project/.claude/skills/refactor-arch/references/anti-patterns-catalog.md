@@ -61,9 +61,9 @@ Toda ocorrência relatada precisa de `arquivo:linha` real, lido no código. Agru
 
 ## AP-08 — Autenticação ausente ou fictícia / autorização ausente — `HIGH`
 
-**Sinal de detecção:** token previsível/não assinado (`"fake-jwt-token-" + id`); nenhuma rota sensível (escrita, leitura de dado de outro usuário, relatório, administração) exige credencial; existe um método de checagem de papel (`is_admin()`) que nunca é chamado por nenhuma rota.
-**Por que importa:** qualquer pessoa pode executar ações privilegiadas sem provar identidade.
-**Correção:** emissão de token real e assinado com expiração, middleware/decorator de autenticação aplicado de forma consistente a toda rota sensível do recurso — não só a algumas. → Playbook RP-08.
+**Sinal de detecção:** token previsível/não assinado (`"fake-jwt-token-" + id`); nenhuma rota sensível (escrita, leitura de dado de outro usuário, relatório, administração) exige credencial; existe um método de checagem de papel (`is_admin()`) que nunca é chamado por nenhuma rota. **Caso específico, fácil de perder quando a autenticação já existe:** uma rota identificada por id (`GET/PUT/DELETE /usuarios/<id>`, `/tasks/<id>`, `/pedidos/<id>` etc.) exige *algum* token válido, mas não confere se quem está autenticado é o dono do registro ou um admin — qualquer usuário autenticado (inclusive um recém-cadastrado por um endpoint público de signup) lê, altera ou apaga dado de outro usuário. Isso vale tanto para o recurso do próprio usuário quanto para um recurso que *pertence* a um usuário por chave estrangeira (ex.: `tasks.user_id`, `pedidos.usuario_id`) — o dono, nesse caso, é o valor dessa coluna no registro buscado, não o id da rota.
+**Por que importa:** qualquer pessoa pode executar ações privilegiadas sem provar identidade, ou — mesmo autenticada — ler/alterar/apagar dados de terceiros só por adivinhar o id do registro.
+**Correção:** emissão de token real e assinado com expiração, middleware/decorator de autenticação aplicado de forma consistente a toda rota sensível do recurso — não só a algumas. **Além disso**, para toda rota que exponha ou mute um registro ligado a um usuário específico, aplique autorização por dono do recurso (padrão "owner-or-admin": o usuário autenticado só acessa se for o próprio dono ou tiver papel de admin) em **todas** as rotas `GET`/`PUT`/`DELETE` desse recurso por id, e em toda rota que lista um sub-recurso de um usuário — não só na rota que o finding citou como exemplo. → Playbook RP-08.
 
 ## AP-09 — Estado global mutável — `HIGH`
 

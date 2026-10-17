@@ -35,3 +35,29 @@ HTTP 401
 ===== DELETE /users/2 com token admin =====
 {"message":"Usu\u00e1rio deletado com sucesso"}
 
+
+===== CORREÇÃO PÓS-ENTREGA — autorização por dono do recurso (AP-08) =====
+--- cadastro de usuario novo via POST /users (publico), simulando o ataque do feedback ---
+{"active":true,"created_at":"2026-10-17 21:46:34.544597","email":"atacante@email.com","id":4,"name":"Atacante","role":"user"}
+
+--- ANTES da correção, estas chamadas devolviam 200 (dado de outro usuário). Esperado agora: 403 ---
+GET /users/1 (de outro usuário) com token do atacante:
+HTTP 403
+GET /tasks/1 (task de outro usuário) com token do atacante:
+HTTP 403
+PUT /tasks/1 (task de outro usuário) com token do atacante:
+HTTP 403
+DELETE /tasks/1 (task de outro usuário) com token do atacante:
+HTTP 403
+GET /users/1/tasks (de outro usuário) com token do atacante:
+HTTP 403
+
+--- sanity: dono e admin continuam acessando normalmente (esperado 200, exceto reatribuição) ---
+GET da própria task (id 11) com token do atacante:
+HTTP 200
+PUT reatribuindo user_id para outra pessoa (esperado 403, só admin reatribui):
+HTTP 403
+GET /tasks/1 (de outro usuário) com token admin:
+HTTP 200
+GET /users/4 (do atacante) com token admin:
+HTTP 200

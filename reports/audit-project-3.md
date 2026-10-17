@@ -174,3 +174,18 @@ Os caminhos e linhas acima se referem ao código anterior à refatoração (`ser
   - `PUT /tasks/<id>` com data inválida responde a mesma mensagem do `POST` (`Formato de data inválido. Use YYYY-MM-DD`).
   - `PUT /users/<id>` com `name` vazio ou `active` não booleano responde 400.
   - `services/notification_service.py` (nunca chamado) foi removido, junto com as credenciais SMTP que continha.
+
+## Correção pós-entrega
+
+Revisão externa apontou que o finding **[HIGH] Autenticação fictícia e autorização ausente (AP-08)** acima foi marcado como "resolvido" de forma incompleta: a Fase 3 original corrigiu a **autenticação** (token assinado, exigido em todas as rotas sensíveis), mas não a **autorização por dono do recurso**. Na prática, qualquer usuário autenticado — inclusive um recém-cadastrado via `POST /users`, que continua público — conseguia:
+
+- `GET /tasks/<id>`, `PUT /tasks/<id>` e `DELETE /tasks/<id>` de uma task que não é sua (não havia comparação entre `task.user_id` e o usuário autenticado);
+- `GET /users/<id>` e `GET /users/<id>/tasks` de outro usuário (a checagem `ensure_self_or_admin` já existia no projeto, usada em `update_user`, mas não tinha sido aplicada a essas rotas de leitura).
+
+**Correção aplicada:** `controllers/task_controller.py` (`get_task`, `update_task`, `delete_task`) e `controllers/user_controller.py` (`get_user`, `list_user_tasks`) agora chamam `ensure_self_or_admin` com o dono real do recurso (`task.user_id` no caso das tasks) antes de ler, alterar ou remover o registro; `update_task` também passou a rejeitar, com `403`, a tentativa de um usuário não-admin reatribuir `user_id` para outra pessoa.
+
+**Validado via Docker** (`docker compose up --build -d` + `curl`): um segundo usuário, criado pelo próprio `POST /users` público e autenticado com seu próprio token, recebe `403` em `GET/PUT/DELETE /tasks/<id>` e `GET /users/<id>`/`GET /users/<id>/tasks` de outra pessoa; continua recebendo `200` nos mesmos endpoints para os próprios recursos; admin continua acessando tudo.
+
+**Catálogo e playbook da skill atualizados** (`anti-patterns-catalog.md` AP-08, `refactoring-playbook.md` RP-08, `SKILL.md` Fase 3) para que a próxima execução trate autenticação e autorização por dono do recurso como duas correções distintas do mesmo anti-pattern, aplicando o padrão `exigir_proprio_usuario_ou_admin`/`ensure_self_or_admin` a **todas** as rotas por id do recurso afetado — não só à rota citada no finding original — e validando explicitamente com um segundo usuário não-dono antes de declarar o finding resolvido.
+
+**Findings CRITICAL/HIGH resolvidos (atualizado):** 6/6 (AP-08 agora cobre autenticação **e** autorização por dono em todas as rotas do recurso).
